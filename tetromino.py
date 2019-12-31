@@ -8,7 +8,6 @@ class Tetromino():
 	 '-','-','#','-','-',
 	 '-','-','#','-','-',
 	 '-','-','-','-','-'],
-	  #0
 
 	['-','-','-','-','-',
 	 '-','-','#','-','-',
@@ -23,7 +22,7 @@ class Tetromino():
 
 	def __init__(self):
 		from random import randint
-		self.orientation = self.pieces[randint(1,1)]
+		self.orientation = self.pieces[randint(0,1)]
 		print("piece:",self.orientation)
 
 

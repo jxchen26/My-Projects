@@ -110,7 +110,7 @@ class Tetris(t.Turtle):
 			x = self.pointer["x"]
 			y -= self.square_h
 
-	def border_collision(self):
+	def piece_collision(self):
 		x_index = int((self.pointer["x"]+400)/self.square_w) 
 		y_index = int(-1*(self.pointer["y"]-480)/self.square_h)
 		board_index = y_index*self.board_w+x_index
@@ -118,9 +118,7 @@ class Tetris(t.Turtle):
 		#has to be 2 for loops for i in range of 5 to iterate the tetromino
 		for row in range(5):
 			for col in range(5):
-				if self.piece.orientation[(row*self.piece.w)+col] != "#" and self.board[board_index+col] ==0 : # ignore all empty spot 
-					continue
-				elif self.piece.orientation[(row*self.piece.w)+col] == "#" and self.board[board_index+col] !=0 : # theres collision 
+				if self.piece.orientation[(row*self.piece.w)+col] == "#" and self.board[board_index+col] !=0: # theres collision 
 					print("Collision!")
 					return True 
 			board_index += 12
@@ -130,28 +128,32 @@ class Tetris(t.Turtle):
 
 	def move_down(self):
 		self.pointer["y"] -= self.square_h
-		if self.border_collision():
+		if self.piece_collision():
 			self.pointer["y"] += self.square_h
 			print("collision detected")
 			return 
 		
 
 
-	def left_arrow_press(self):
-		if self.border_collision():
-			print("collision detected")
-			return 
+	def rotate_left(self):
 		self.piece.rotate_left()
-
-	def right_arrow_press(self):
-		if self.border_collision():
+		if self.piece_collision():
+			self.piece.rotate_right()
 			print("collision detected")
 			return 
+		
+
+	def rotate_right(self):
 		self.piece.rotate_right()
+		if self.piece_collision():
+			self.piece.rotate_left()
+			print("collision detected")
+			return 
+		
 
 	def move_up(self):
 		self.pointer["y"]+= self.square_h
-		if self.border_collision():
+		if self.piece_collision():
 			self.pointer["y"]-= self.square_h
 			print("collision detected")
 			return 
@@ -159,14 +161,14 @@ class Tetris(t.Turtle):
 
 	def move_left(self):
 		self.pointer["x"] -= self.square_w
-		if self.border_collision():
+		if self.piece_collision():
 			print("collision detected")
 			self.pointer["x"] += self.square_w
 			return 
 
 	def move_right(self):
 		self.pointer["x"] += self.square_w
-		if self.border_collision():
+		if self.piece_collision():
 			self.pointer["x"] -= self.square_w
 			print("collision detected")
 			return 
@@ -179,28 +181,32 @@ class Tetris(t.Turtle):
 		board_index = y_index*self.board_w+x_index
 		print("the pointer's  is at:", board_index)
 
-		#has to be 2 for loops for i in range of 5 to iterate the tetromino
+		#the 2 for loops is used to iterate the tetromino array only!
 		for row in range(5):
 			for col in range(5):
-				if self.piece.orientation[(row*self.piece.w)+col] != "#" and self.board[board_index+col] ==0 : # ignore all empty spot 
-					continue
-				elif self.piece.orientation[(row*self.piece.w)+col] == "#" and self.board[board_index+col] !=0 : # theres collision 
-					print("Collision!")
-					return 
+				if board_index+col <= 311:
+					
+					if self.piece.orientation[(row*self.piece.w)+col] != "#" and self.board[board_index+col] ==0 : # ignore all empty spot 
+						continue
+					elif self.piece.orientation[(row*self.piece.w)+col] == "#" and self.board[board_index+col] !=0 : # theres collision 
+						print("Collision!")
+						return 
 			board_index += 12
 			print("updated board index:", board_index)
 
 		board_index = y_index*self.board_w+x_index
 		for row in range(5):
 			for col in range(5):
-				if self.piece.orientation[(row*self.piece.w)+col] != "#" and self.board[board_index+col] ==0 : # ignore all empty spot 
-					continue
-				self.board[board_index+col] = "#"
+				if board_index+col <= 311:
+
+					if self.piece.orientation[(row*self.piece.w)+col] == "#" and self.board[board_index+col] ==0 : # ignore all empty spot 
+						self.board[board_index+col] = "#"
 			 # skip one row on the board 
 			board_index += 12
 
-		print("NEW BOARD:", self.board)
-
+		self.pointer["x"] = self.upper_left_corner["x"]+self.init_xoffset
+		self.pointer["y"] = self.upper_left_corner["y"]
+		self.load_tetromino()
 
 				
 
@@ -216,13 +222,12 @@ screen.tracer(0)
 
 game.load_tetromino()
 
-screen.onkey(game.left_arrow_press, "Left")
-screen.onkey(game.right_arrow_press, "Right")
+screen.onkey(game.rotate_left, "a")
+screen.onkey(game.rotate_right, "s")
 screen.onkey(game.move_down,"Down")
-screen.onkey(game.move_up,"w")
-screen.onkey(game.move_left, "a")
-screen.onkey(game.move_right,"d")
-screen.onkey(game.set_piece, "s")
+screen.onkey(game.move_left, "Left")
+screen.onkey(game.move_right,"Right")
+screen.onkey(game.set_piece, "Up")
 screen.listen()
 game.hideturtle()
 
